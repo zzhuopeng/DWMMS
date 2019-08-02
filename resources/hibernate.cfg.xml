@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="connection.url">jdbc:mysql://localhost:3306/drivingbehaviourwarning</property>
+    <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+    <!--数据库关联:用户名、密码、驱动、URL-->
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+    <property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/drivingbehaviourwarning?useUnicode=true&amp;characterEncoding=utf-8</property>
+
+    <!--数据库方言、显示SQL语句、格式化SQL语句-->
+    <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+    <property name="show_sql">true</property>
+    <property name="format_sql">true</property>
+
+    <!--beans关联:关联映射类-->
+    <mapping class="com.cqupt.entity.DriverInfo"/>
+    <mapping class="com.cqupt.entity.WarningInfo"/>
+
+  </session-factory>
+</hibernate-configuration>
