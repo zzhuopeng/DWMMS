@@ -3,10 +3,14 @@ package com.cqupt.entity;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "driver_info", schema = "drivingbehaviourwarning", catalog = "")
-public class DriverInfo {
+public class DriverInfo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(generator = "paymentableGenerator")
     @GenericGenerator(name = "paymentableGenerator", strategy = "uuid")

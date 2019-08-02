@@ -9,13 +9,13 @@ import java.nio.channels.SocketChannel;
 @Service("warningInfoHandler")
 public class WarningInfoHandler {
 
+    @Autowired
     private WarningInfoDao warningInfoDao;
 
     public WarningInfoDao getWarningInfoDao() {
         return warningInfoDao;
     }
 
-    @Autowired
     public void setWarningInfoDao(WarningInfoDao warningInfoDao) {
         this.warningInfoDao = warningInfoDao;
     }
@@ -26,7 +26,11 @@ public class WarningInfoHandler {
      * @param client Socket客户端
      */
     @SuppressWarnings({ "unchecked" })
-    public void warning(String recieveStr, SocketChannel client) {
+    public void setWarning(String recieveStr, SocketChannel client) {
+
+    }
+
+    public void getWarning(String recieveStr, SocketChannel client) {
 
     }
 }

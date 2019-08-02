@@ -25,6 +25,7 @@ public class Dispatcher {
     private ServerSocketChannel serverSocketChannel;
     private static final int port = 8888;
     private static ByteBuffer readBuffer = ByteBuffer.allocate(2048);
+    private static ByteBuffer writeBuffer = ByteBuffer.allocate(16 * 2048);
 
     /**
      * The channel manager.
@@ -115,11 +116,9 @@ public class Dispatcher {
                     System.out.println("服务器端接受客户端数据-----" + recieveStr);
 
                     String fromType = "";
-                    String dataType = "";
                     try {
                         JSONObject jsonObject = JSONObject.parseObject(recieveStr);
                         fromType = jsonObject.getString("fromtype");
-                        dataType = jsonObject.getString("datatype");
                     } catch (Exception e1) {
                         System.out.println("error=====error" + e1.getMessage());
                     }
@@ -127,20 +126,17 @@ public class Dispatcher {
                     //针对不同的Json消息，进行对应的业务处理
                     if ("hmi".equals(fromType)) {
                         System.out.println("移动终端HMI.....");
-                        switch (dataType) {
-                            case "register":
-                                driverInfoHandler.register(recieveStr, client);
-                                break;
-                            case "login":
-                                driverInfoHandler.login(recieveStr, client);
-                                break;
-                            case "warning":
-                                warningInfoHandler.warning(recieveStr, client);
-                                break;
-                            default:
-                                System.out.println("[ERROR]:HMI Send Unknown dataType");
-                                break;
-                        }
+                        String response = hmiControler(recieveStr, client);
+                        responseJson(response, client);
+
+                    } else if ("obu".equals(fromType)) {
+                        System.out.println("车载终端OBU.....");
+
+                    } else if ("web".equals(fromType)) {
+                        System.out.println("网页前端WEB.....");
+
+                    } else { // 消息格式不正确
+                        responseJson("fromtype error", client);
                     }
 
                 } else {
@@ -154,6 +150,50 @@ public class Dispatcher {
             selectionKey.cancel();
             this.offline(client, "发生异常，断开");
         }
+    }
+
+    /**
+     * HMI相关信息的分类处理
+     * @param recieveStr
+     * @param client
+     */
+    private String hmiControler(String recieveStr, SocketChannel client) {
+
+        JSONObject jsonObject = JSONObject.parseObject(recieveStr);
+        String dataType = jsonObject.getString("datatype");
+        String response = "";
+
+        switch (dataType) {
+            case "close":
+                break;
+            case "register":
+                response = driverInfoHandler.register(recieveStr, client);
+                break;
+            case "login":
+                driverInfoHandler.login(recieveStr, client);
+                break;
+            case "setWM":
+                warningInfoHandler.setWarning(recieveStr, client);
+                break;
+            case "getWM":
+                warningInfoHandler.getWarning(recieveStr, client);
+                break;
+            default:
+                System.out.println("[ERROR]:HMI Send Unknown dataType");
+                break;
+        }
+        return response;
+    }
+
+    private void responseJson(String resp, SocketChannel client)
+            throws IOException { // response:响应，回应
+        writeBuffer.clear(); // 字节缓冲区 position被设回0，limit被设置成
+        // capacity的值，换句话说，Buffer
+        // 被清空了。Buffer中的数据并未清除，只是这些标记告诉我们可以从哪里开始往Buffer里写数据
+        System.out.println("resp=======" + resp);
+        writeBuffer.put((resp.toString() + "\n").getBytes());
+        writeBuffer.flip();
+        client.write(writeBuffer);
     }
 
     private void offline(SocketChannel client, String msg) {
